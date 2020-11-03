@@ -1,0 +1,38 @@
+% function [X,FVAL] = optim(B,c,p0)
+% % p0 = [0.25;0.75;0.5];
+% % options = optimoptions('fmincon', 'PlotFcn', 'optimplotx');
+% % options = optimoptions('fmincon', 'OutputFcn', @myplotx);
+% 
+% [X,FVAL] = fmincon(@(p) objfun(B,p0), [], [], [], [], [0; 0; 0], [10; 10; 10], []);
+% % [X,FVAL,EXITFLAG,OUTPUT] = fminsearchbnd(@objfun, p0, [0; 0; 0], [10; 10; 10])
+% 
+% 
+% end
+
+A1=importdata("dataset1.dat");
+B1 = A1.data;
+A2=importdata("dataset2.dat");
+B2 = A2.data;
+c = [9; 1; 2.5; 0.5; 0.5; 10; 8; 15; 15; 15; 15; 15; 15; 15; 15];
+global B
+global c
+c2 = [18; 2; 2.5; 1.25; 1.25; 50; 40; 100; 100; 100; 100; 100; 100; 100; 100];
+B = [B1 B2(:,2:9)];
+fprintf("[dataset1 dataset2]; set1\n");
+X = zeros(3,10);
+x = zeros(10,1);
+for i = 1:10
+    p0 = rand(3,1);
+    fun = @(p) objfun(B,c,p);
+    [X(:,i),FVAL] = fmincon(objfun, p0, [], [], [], [], [0; 0; 0], [10; 10; 10], [])
+    x(i) = FVAL;
+    
+end
+[y,i] = min(x,[],1);
+disp(y);
+X(:,i)
+
+function u = objfun(B,c,p)
+C = kinetics(c,p,B(:,1))
+u = sum(sum((B(:,2:17)-[C C]).^2, 'omitnan'),'omitnan');
+end
